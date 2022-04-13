@@ -6,12 +6,13 @@ from fastapi import FastAPI
 
 # from .dependencies import get_query_token, get_token_header
 from account import right
+import dependencies
 
 # app = FastAPI(dependencies=[Depends(get_query_token)])
 app = FastAPI()
 
 
-# app.include_router(right.router)
+app.include_router(dependencies.router)
 # app.include_router(items.router)
 app.include_router(
     right.router,

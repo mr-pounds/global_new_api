@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
-from dependencies import oauth2_scheme
+from dependencies import get_current_user
 
 
 router = APIRouter()
 
 
 @router.get("/users/", tags=["users"])
-async def read_users(common: dict = Depends(oauth2_scheme)):
-    print(common)
+async def read_users(current_user: dict = Depends(get_current_user)):
+    print(current_user)
     return [{"username": "Rick"}, {"username": "Morty"}]
 
 
