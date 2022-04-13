@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pyyaml = "*"
+fastapi = "*"
+
+[dev-packages]
+pre-commit = "==2.15.0"
+isort = "==5.9.3"
+black = "==21.9b0"
+flake8 = "==4.0.1"
+mypy = "==0.910"
+pytest = "==6.2.5"
+
+[requires]
+python_version = "3.8"
