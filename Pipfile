@@ -7,6 +7,9 @@ name = "pypi"
 pyyaml = "*"
 fastapi = "*"
 python-multipart = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+tortoise-orm = "*"
+types-pyyaml = "*"
 
 [dev-packages]
 pre-commit = "==2.15.0"

@@ -1,21 +1,37 @@
-from fastapi import APIRouter, Depends
-from dependencies import get_current_user
+from fastapi import APIRouter
 
+from models.right import Rights, Rights_Pydantic
 
 router = APIRouter()
 
 
-@router.get("/users/", tags=["users"])
-async def read_users(current_user: dict = Depends(get_current_user)):
-    print(current_user)
-    return [{"username": "Rick"}, {"username": "Morty"}]
+@router.get("/account/getRightsList", tags=["account"])
+async def get_rights():
+    rights = await Rights.filter(parent_id=None).all()
+    result = []
+    for right in rights:
+        result.append({
+            "id": right.id,
+            "url": right.url,
+            "title": right.title,
+            "children": await Rights_Pydantic.from_queryset(Rights.filter(parent_id=right.id).all()),
+            # "children": [],
+            "permission": right.permission,
+        })
+    return result
 
 
-@router.get("/users/me", tags=["users"])
-async def read_user_me():
-    return {"username": "fakecurrentuser"}
-
-
-@router.get("/users/{username}", tags=["users"])
-async def read_user(username: str):
-    return {"username": username}
+@router.put("/account/changeRightPermission", tags=["account"])
+async def change_right_permission(id: int):
+    right = await Rights.filter(id=id).first()
+    if right:
+        right.permission = 0 if right.permission == 1 else 1
+        await right.save()
+        return {
+            "msg": "ok",
+            "data": None
+        }
+    return {
+        "msg": "error: not found right",
+        "data": None
+    }

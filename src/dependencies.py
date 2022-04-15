@@ -1,7 +1,8 @@
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from typing import Optional
-from fastapi import Depends, HTTPException, status, APIRouter
 
 router = APIRouter()
 
@@ -34,6 +35,11 @@ class UserInDB(User):
     hashed_password: str
 
 
+class LoginBody(BaseModel):
+    username: str
+    password: str
+
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -52,7 +58,7 @@ def fake_decode_token(token):
     return user
 
 
-# TODO(Zheng Zhizhan, 2022-04-13 21:21:01)：看文档把用户认证部分写完 https://fastapi.tiangolo.com/zh/tutorial/security/simple-oauth2/
+# TODO(Zheng Zhizhan, 2022-04-13 21:21:01)：看文档把用户认证部分写完
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = fake_decode_token(token)
     if not user:
@@ -70,9 +76,11 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     return current_user
 
 
+# async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @router.post("/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user_dict = fake_users_db.get(form_data.username)
+    # print(form_data.scopes)
     if not user_dict:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     user = UserInDB(**user_dict)

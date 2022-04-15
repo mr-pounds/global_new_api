@@ -7,6 +7,7 @@ project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 数据库文件地址
 DB_DIR = os.path.join(project_path, "db")
+DB_PATH = os.path.join(DB_DIR, "database.sqlite3")
 
 # 日志文件地址
 LOG_DIR = os.path.join(project_path, "log")
