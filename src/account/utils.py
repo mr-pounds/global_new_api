@@ -20,7 +20,10 @@ async def get_rights_list(
     """
 
     result = []
-    rights = await Rights.filter(parent_id=parent_id).filter(permission=1).all()
+    if filter:
+        rights = await Rights.filter(parent_id=parent_id).filter(permission=1).all()
+    else:
+        rights = await Rights.filter(parent_id=parent_id).all()
 
     for right in rights:
         children = await get_rights_list(

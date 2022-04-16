@@ -14,7 +14,15 @@ router = APIRouter()
 
 @router.get("/account/getRightsList", tags=["account"])
 async def get_rights_list():
-    return await get_rights_list_utils(filter=True)
+    result = await get_rights_list_utils()
+    return {
+        "code": 0,
+        "msg": "success",
+        "data": {
+            "list": result,
+            "total": len(result),
+        },
+    }
 
 
 @router.put("/account/changeRightPermission", tags=["account"])
@@ -38,18 +46,19 @@ async def get_role_list():
 
 class AddRoleModel(BaseModel):
     name: str
+    desc: str
     right_list: list[int]
 
 
 @router.post("/account/addRole", tags=["account"])
 async def add_role(body: AddRoleModel):
-    role = await Roles.filter(name=body.name).first()
+    role = await Roles.filter(is_delete=0).filter(name=body.name).first()
     if role is not None:
-        return {"msg": "error: role name is exist", "data": None}
-    role = await Roles.create(name=body.name)
+        return {"code": 101, "msg": "error: role name is exist", "data": None}
+    role = await Roles.create(name=body.name, desc=body.desc)
     for right in body.right_list:
         await RoleRight.create(role=role, right=await Rights.filter(id=right).first())
-    return {"msg": "ok", "data": None}
+    return {"code": 0, "msg": "ok", "data": None}
 
 
 @router.get(
@@ -66,12 +75,17 @@ async def get_rights_by_role_id(id: Optional[int] = None):
 class RoleModel(BaseModel):
     id: int
     name: str
+    desc: str
     right_list: list[int]
 
 
 @router.put("/account/updateRole", tags=["account"])
 async def update_role(body: RoleModel):
     # 删除多余的权限
+    role = await Roles.filter(id=body.id).first()
+    role.name = body.name
+    role.desc = body.desc
+    await role.save()
     await RoleRight.filter(role=body.id).filter(
         right_id__not_in=body.right_list
     ).delete()
@@ -90,7 +104,7 @@ async def update_role(body: RoleModel):
 
 @router.delete("/account/delRole", tags=["account"])
 async def del_role(id: int):
-    deleted_count = await Roles.filter(id=id).delete()
+    deleted_count = await Roles.filter(id=id).update(is_delete=1)
     await RoleRight.filter(role=id).delete()
     if not deleted_count:
         return {"msg": "error: not found role", "data": None}
