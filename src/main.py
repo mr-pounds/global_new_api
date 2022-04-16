@@ -14,7 +14,7 @@ import login
 from setting import DB_PATH
 
 # app = FastAPI(dependencies=[Depends(get_query_token)])
-app = FastAPI(title='tortoise-fastapi')
+app = FastAPI(title="tortoise-fastapi")
 
 
 class Status(BaseModel):
