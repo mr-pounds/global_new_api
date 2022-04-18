@@ -2,9 +2,7 @@
 # -*- encoding: utf-8 -*-
 
 # here put the import lib
-
 from fastapi import FastAPI
-from pydantic import BaseModel
 from tortoise.contrib.fastapi import register_tortoise
 
 # from .dependencies import get_query_token, get_token_header
@@ -15,10 +13,6 @@ from setting import DB_PATH
 
 # app = FastAPI(dependencies=[Depends(get_query_token)])
 app = FastAPI(title="tortoise-fastapi")
-
-
-class Status(BaseModel):
-    message: str
 
 
 app.include_router(dependencies.router)
