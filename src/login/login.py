@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from models.right import Rights, Rights_Pydantic
+from models.account import Rights, Rights_Pydantic
 
 router = APIRouter()
 

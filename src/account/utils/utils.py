@@ -1,4 +1,4 @@
-from models.right import Rights, RoleRight
+from models.account import Rights, RoleRight
 
 
 async def get_rights_list(

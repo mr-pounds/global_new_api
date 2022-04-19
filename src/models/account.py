@@ -1,3 +1,5 @@
+from enum import IntEnum
+
 from tortoise import fields
 from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.models import Model
@@ -60,4 +62,38 @@ class RoleRight(Model):
         exclude = ["create_time", "update_time"]
 
 
-RoleRight_Pydantic = pydantic_model_creator(RoleRight, name="RoleRights")
+Region = IntEnum("Region", ("全国", "北京", "上海", "广州", "深圳"))
+
+
+class User(Model):
+
+    id = fields.IntField(pk=True)
+    name = fields.CharField(max_length=30, null=False, description="用户名")
+    password = fields.CharField(max_length=60, null=False, description="密码")
+    phone = fields.CharField(max_length=11, null=False, unique=True, description="手机号")
+    region = fields.IntEnumField(Region, null=False, description="地区")
+    role = fields.ForeignKeyField(
+        "models.Roles", related_name="role_id", description="角色id"
+    )
+    is_delete = fields.BooleanField(default=False, description="是否删除")
+    is_effect = fields.BooleanField(default=True, description="是否生效")
+    create_time = fields.DatetimeField(auto_now_add=True, description="创建时间")
+    update_time = fields.DatetimeField(auto_now=True, description="更新时间")
+
+    class Meta:
+        table = "user"
+        order = ["id"]
+
+    def region_name(self):
+        return Region(self.region).name
+
+    @staticmethod
+    def get_region_list():
+        return [i.name for i in Region]
+
+    class PydanticMeta:
+        computed: list[str] = ["region_name"]
+        exclude = ["create_time", "update_time", "is_delete", "password"]
+
+
+User_Pydantic = pydantic_model_creator(User, name="User")
