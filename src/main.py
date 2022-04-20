@@ -7,6 +7,7 @@ from tortoise.contrib.fastapi import register_tortoise
 
 import dependencies
 import login
+
 # from .dependencies import get_query_token, get_token_header
 from account import right, role, user
 from setting import DB_PATH

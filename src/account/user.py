@@ -47,7 +47,6 @@ class AddUser(BaseModel):
 @router.post("/account/addUser", tags=["account"])
 async def add_user(user: AddUser):
     user_obj = await User.filter(phone=user.phone).first()
-    # print(user_obj.id)
     if user_obj is not None:
         return {
             "success": True,
@@ -131,6 +130,31 @@ async def change_user_effect(id: int):
             "data": None,
         }
     user_obj.is_effect = 0 if user_obj.is_effect else 1
+    await user_obj.save()
+    return {
+        "success": True,
+        "code": 0,
+        "msg": "",
+        "data": None,
+    }
+
+
+class ChangePwdModel(BaseModel):
+    id: int
+    password: str
+
+
+@router.post("/account/changeUserPassword", tags=["account"])
+async def change_user_password(body: ChangePwdModel):
+    user_obj = await User.filter(id=body.id).first()
+    if user_obj is None:
+        return {
+            "success": True,
+            "code": 404,
+            "msg": "用户不存在",
+            "data": None,
+        }
+    user_obj.password = body.password
     await user_obj.save()
     return {
         "success": True,
