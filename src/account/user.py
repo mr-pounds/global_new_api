@@ -9,7 +9,6 @@ router = APIRouter()
 @router.get("/account/getUserList", tags=["account"])
 async def get_user_list():
     objs = await User.filter(is_delete=0).prefetch_related("role").all()
-    # print(objs[0].role.name)
     user_list = [
         {
             "id": obj.id,
