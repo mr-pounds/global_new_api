@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends
 
-from models.account import Rights
-
-from utils import get_rights_list_utils
 from dependencies import get_current_user
+from models.account import Rights
+from utils import get_rights_list_utils
 
 router = APIRouter(dependencies=[Depends(get_current_user)])
 

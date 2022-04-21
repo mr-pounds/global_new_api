@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Cookie, Depends
 from pydantic import BaseModel
-from utils import get_rights_list_by_role_utils
-from dependencies import get_current_user
 
+from dependencies import get_current_user
 from models.account import User
+from utils import get_rights_list_by_role_utils
 
 router = APIRouter()
 
@@ -31,7 +31,7 @@ async def get_menu_list(token: str = Cookie(None)):
         "sucess": True,
         "code": 0,
         "msg": "",
-        "data": await get_rights_list_by_role_utils(user.role_id)
+        "data": await get_rights_list_by_role_utils(user.role_id),
     }
 
 
