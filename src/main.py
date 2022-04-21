@@ -5,7 +5,6 @@
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
-import dependencies
 import login
 
 # from .dependencies import get_query_token, get_token_header
@@ -14,10 +13,6 @@ from setting import DB_PATH
 
 # app = FastAPI(dependencies=[Depends(get_query_token)])
 app = FastAPI(title="tortoise-fastapi")
-
-#  解决依赖项
-app.include_router(dependencies.router)
-# app.include_router(items.router)
 
 # 导入 account 相关的接口
 app.include_router(

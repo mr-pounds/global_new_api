@@ -1,91 +1,18 @@
-from typing import Optional
-
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from pydantic import BaseModel
-
-router = APIRouter()
-
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "fakehashedsecret",
-        "disabled": False,
-    },
-    "alice": {
-        "username": "alice",
-        "full_name": "Alice Wonderson",
-        "email": "alice@example.com",
-        "hashed_password": "fakehashedsecret2",
-        "disabled": True,
-    },
-}
+from fastapi import Cookie, HTTPException, status
+from models.account import User
 
 
-class User(BaseModel):
-    username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = None
-
-
-class UserInDB(User):
-    hashed_password: str
-
-
-class LoginBody(BaseModel):
-    username: str
-    password: str
-
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
-
-
-def fake_hash_password(password: str):
-    return "fakehashed" + password
-
-
-def fake_decode_token(token):
-    user = get_user(fake_users_db, token)
-    return user
-
-
-# TODO(Zheng Zhizhan, 2022-04-13 21:21:01)：看文档把用户认证部分写完
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    user = fake_decode_token(token)
-    if not user:
+async def get_current_user(token: str = Cookie(None)):
+    user_obj = await User.filter(id=token).first()
+    if user_obj is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
+            detail={
+                "code": 401,
+                "msg": "身份信息失效，请重新登录",
+                "data": None,
+                "success": False,
+            },
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return user
-
-
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
-
-
-# async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-@router.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user_dict = fake_users_db.get(form_data.username)
-    # print(form_data.scopes)
-    if not user_dict:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    user = UserInDB(**user_dict)
-    hashed_password = fake_hash_password(form_data.password)
-    if not hashed_password == user.hashed_password:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-
-    return {"access_token": user.username, "token_type": "bearer"}
+    return user_obj

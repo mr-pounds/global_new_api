@@ -61,4 +61,4 @@ async def get_rights_list_by_role(role_id: int) -> list[dict]:
     rights_map = await RoleRight.filter(role=role_id).values("right_id")
     rights_list = [right["right_id"] for right in rights_map]
     # print(rights_list)
-    return await get_rights_list(permission_include=rights_list)
+    return await get_rights_list(permission_include=rights_list, filter=True)
